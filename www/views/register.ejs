@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<%- include ./layout/head %>
+<body>
+    <div id="signupbox" style="margin-top:50px" class="mainbox col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2">
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <div class="panel-title">Register</div>
+            </div>
+            <div class="panel-body">
+                <form id="signupform" role="form" method="post" action="/register" class="form-horizontal">
+                    <div id="signupalert" style="<% if(!data || !data.error ) {%>display:none<%}%>" class="alert alert-danger">
+                        <span>Error :</span>
+                        <%if (data && data.error) {%>
+                        <span><%= data.error%></span>
+                        <%}%>
+                    </div>
+                    <div class="form-group">
+                        <label for="email" class="col-md-3 control-label">Email:</label>
+                        <div class="col-md-9">
+                            <input type="email" name="email" placeholder="Email Address" class="form-control email" required/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="fullname" class="col-md-3 control-label">Fullname:</label>
+                        <div class="col-md-9">
+                            <input type="text" name="fullname" placeholder="Fullname" class="form-control fullname" required/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="password" class="col-md-3 control-label">Password:</label>
+                        <div class="col-md-9">
+                            <input type="password" name="password" placeholder="Password" class="form-control password" required/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="password" class="col-md-3 control-label">Re-Type:</label>
+                        <div class="col-md-9">
+                            <input type="password" name="repassword" placeholder="Re-type password" class="form-control repassword" required/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-offset-3 col-md-9">
+                            <div data-sitekey="6Lc4GSUUAAAAACY8_1G3-ACb7cXg9YvcW7pMSmsd" class="g-recaptcha"></div><br/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <!-- Button-->
+                        <div class="col-md-offset-3 col-md-2">
+                            <input id="btn-signup" type="submit" value="Sign Up" class="btn btn-info" /><i class="icon-hand-right"></i>
+                        </div>
+                        <div class="col-md-2"><a href="/login" style="margin-right: 5px;" class="btn btn-danger">Cancel</a><i class="icon-hand-right"></i></div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
