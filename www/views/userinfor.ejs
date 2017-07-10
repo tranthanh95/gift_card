@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<%- include('layout/head', {title : data.title}); %>
+
+<body>
+<%- include('layout/nav', {cart : data.session }); %>
+    <div class="container">
+        <br/>
+        <div class="row">
+            <!-- left column-->
+            <!-- edit form column-->
+            <div class="col-md-9 personal-info col-md-offset-2">
+                <h3>Information User.</h3>
+                <form role="form" class="form-horizontal">
+                    <div class="form-group">
+                        <label class="col-lg-3 control-label text-right">Email :</label>
+                        <div class="col-lg-8">
+                            <input type="text" value="" class="form-control" disabled/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-lg-3 control-label text-right">FullName :</label>
+                        <div class="col-lg-8">
+                            <input type="text" value="" class="form-control" disabled/>
+                        </div>
+                    </div>
+                    <!--<div class="form-group">
+                        <label class="col-lg-3 control-label text-right">Image :</label>
+                        <div class="col-lg-8">
+                            <input id="inputFile" type="file" class="form-control" />
+                            <p class="help-block">Please enter the image.</p>
+                        </div>
+                    </div>-->
+                    <div class="form-group">
+                        <label class="col-md-3 control-label">Password :</label>
+                        <div class="col-md-8">
+                            <input type="text" class="form-control" disabled/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-3 control-label">Admin :</label>
+                        <div class="col-md-8">
+                            <label class="radio-inline">
+                        <input type="radio" name="optradio"/>OK
+                    </label>
+                            <label class="radio-inline">
+                        <input type="radio" name="optradio"/>No
+                    </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-3 control-label"></label>
+                        <div class="col-md-8">
+                            <input type="button" value="Save Changes" class="btn btn-primary" /><span>&nbsp</span>
+                            <input type="reset" value="Cancel" class="btn btn-default" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <hr/>
+    <script type="text/javascript" src="/js/sell.js"></script>
+    <%- include ./layout/footer %>

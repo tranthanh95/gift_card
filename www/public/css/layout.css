@@ -51,6 +51,11 @@ th {
     vertical-align: inherit;
 }
 
+.badge {
+    color: red;
+    background-color: #FFF;
+}
+
 .nav {
     font: 15px "ProximaNova-Bold", Helvetica, Arial, sans-serif;
     margin-left: 0;

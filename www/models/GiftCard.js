@@ -26,46 +26,24 @@ const GiftCardSchema = new mongoose.Schema({
             ref: "Category"
         }
     ],
-    id: {
-        type: int,
-        required: true,
-        unique: true
-    },
     descriptions: {
-        type: String,
-        required: true
+        type: String
     },
     image: {
-        type: String,
-        required: true
+        type: String
     },
     series: {
-        type: String,
-        required: true
+        type: String
     },
     code: {
-        type: String,
-        required: true
-    },
-    type: {
-        type: int,
-        required: true
-    },
-    value: {
-        type: int,
-        required: true
-    },
-    owncol: {
-        type: Text,
-        required: true
+        type: String
     },
     created_at: {
         type: Date,
-        required: true
+        default: Date.now
     },
     updated_at: {
-        type: Date,
-        required: true
+        type: Date
     }
 }, {collection: "GiftCard"});
 

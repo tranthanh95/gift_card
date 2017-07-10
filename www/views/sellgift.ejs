@@ -1,9 +1,8 @@
 <!DOCTYPE html>
 <html>
-<%- include ./layout/head %>
-
+<%- include('layout/head', {title : data.title}); %>
 <body>
-   <%- include ./layout/nav %>
+   <%- include('layout/nav', {cart : data.session }); %>
     <div class="container">
         <h1>Sell Gift</h1>
         <hr/>

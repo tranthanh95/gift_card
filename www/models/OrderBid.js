@@ -40,11 +40,10 @@ const OrderBidSchema = new mongoose.Schema({
     },
     created_at: {
         type: Date,
-        required: true
+        default: Date.now
     },
     updated_at: {
-        type: Date,
-        required: true
+        type: Date
     }
 }, {collection: "OrderBid"});
 

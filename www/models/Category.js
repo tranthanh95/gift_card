@@ -14,30 +14,19 @@ const CategorySchema = new mongoose.Schema({
             ref: 'GiftCard'
         }
     ],
-    id: {
-        type: Schema.Types.ObjectId,
-        ref: 'GiftCard',
-        required: true,
-        unique: true
-    },
     name: {
         type: String,
         required: true
     },
-    type: {
-        type: Double,
-        required: true
-    },
+    type: String,
     value: {
-        type: Double,
-        required: true
+        type: Number
     },
     created_at: {
-        type: Date
+        type: Date,
+        default: Date.now
     },
-    updated_at: {
-        type: Date
-    }
+    updated_at: Date
 }, {collection: "Category"});
 
 module.exports = mongoose.model('Category', CategorySchema);

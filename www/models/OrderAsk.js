@@ -26,22 +26,16 @@ const OrderAskSchema = new mongoose.Schema({
             ref: "Transaction"
         }
     ],
-    id: {
-        type: int,
-        required: true,
-        unique: true
-    },
     priceask: {
-        type: int,
+        type: Number,
         required: true
     },
     created_at: {
         type: Date,
-        required: true
+        default: Date.now
     },
     updated_at: {
-        type: Date,
-        required: true
+        type: Date
     }
 }, {collection: "OrderAsk"});
 

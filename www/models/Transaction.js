@@ -14,11 +14,6 @@ const TransactionSchema = new mongoose.Schema({
             ref: 'OrderBid'
         }
     ],
-    id: {
-        type: int,
-        required: true,
-        unique: true
-    },
     price: {
         type: int,
         required: true,
@@ -30,11 +25,10 @@ const TransactionSchema = new mongoose.Schema({
     },
     created_at: {
         type: Date,
-        required: true
+        default: Date.now
     },
     updated_at: {
-        type: Date,
-        required: true
+        type: Date
     }
 }, {collection: "Transaction"});
 

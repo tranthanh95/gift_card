@@ -6,6 +6,12 @@ const UserService = {
         User.find(callback);
     },
 
+    findUserById(id, callback) {
+        User.findOne({
+            _id: id
+        }, callback)
+    },
+
     findUserByEmail: function (email, callback) {
         User.findOne({
             email
@@ -13,13 +19,13 @@ const UserService = {
     },
 
     register: function (createUser, callback) {
-        let user = new User({
+        var user = new User({
             email: createUser.email,
             password: createUser.password,
             fullName: createUser.fullname,
             admin: false,
             salt: createUser.salt,
-            create_at: new Date()
+            // create_at: new Date()
         });
         user.save(callback);
     }

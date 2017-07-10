@@ -2,49 +2,291 @@ const express = require("express");
 
 const router = express.Router();
 
-const UserService = require('../services/UserService.js');
+// Require model
+const Cart = require("../models/Cart.js");
 
-const helper = require("../helpers/helper");
+const UserService = require("../services/UserService.js");
+const CategoryService = require("../services/CategoryService.js");
+const GiftCardService = require("../services/GiftCardService.js");
 
-// router index.
+// Require helper.
+const helper = require("../helpers/helper.js");
+
+// Session cart.
+var cartManager;
+
+// GET Homepage.
 router
     .route("/")
     .get((req, res) => {
+        cartManager = req.session.cart;
+        console.log(cartManager);
+        var cart = new Cart(cartManager
+            ? cartManager
+            : {});
         res.render("index", {
-            data: false,
-            title: "Home"
+            data: {
+                title: "My home page",
+                session: cartManager
+            }
         });
     })
 
+// Router get all users.
 router
     .route("/user")
     .get((req, res) => {
-        UserService.listUser((users) => {
-            console.log(users);
-            res.render("user", {data: users});
+        UserService.listUser((err, users) => {
+            if (!err && users) {
+                console.log(users);
+                res.render("user", {
+                    data: {
+                        users: users,
+                        title: "List Users"
+                    }
+                });
+            } else {
+                console.log("Error");
+            }
         });
-
     })
 
-// Router login for user.
+router
+    .route("/user/:id")
+    .get((req, res) => {
+        var id = req.params.id;
+        UserService.findUserById(id, (err, user) => {
+            if (!err && user) {
+                res.render("userinfor", {
+                    data: {
+                        title: "UserInfor"
+                    }
+                });
+            }
+        });
+    })
+
+// Router login for user. : COMPLETED.
 router
     .route("/login")
     .get((req, res) => {
-        res.render("login", {data: false});
+        res.render("login", {
+            data: {
+                title: "Login"
+            }
+        });
     })
     .post((req, res) => {
-        let userInfor = req.body;
-
+        var userInfor = req.body;
         UserService.findUserByEmail(userInfor.email, (err, user) => {
             if (!err && user) {
+                console.log("Successfully");
                 var status = helper.compare_password(userInfor.password, user.password);
                 if (status) {
                     req.session.user = user;
                     delete req.session.user.password; // Delete password in session.
                     delete req.session.user.salt; // Delete salt in session.
                     console.log(req.session.user);
-                    res.render("index", {data: false});
-                } else {}
+                    res.render("index", {
+                        data: {
+                            title: "Homepage"
+                        }
+                    });
+                } else {
+                    res.render("login", {
+                        data: {
+                            error: "Password wrong!!",
+                            title: "Login"
+                        }
+                    });
+                }
+            } else {
+                console.log("error");
+                res.render("login", {
+                    data: {
+                        error: "Username or password Wrong!!",
+                        title: "Login"
+                    }
+                });
+            }
+        });
+    })
+
+// Router add to cart.
+router
+    .route("/add-to-cart/:id")
+    .get((req, res) => {
+        var giftId = req.params.id;
+        // console.log(giftId);
+        var cart = new Cart(cartManager
+            ? cartManager
+            : {});
+        GiftCardService.giftById(giftId, (err, giftcard) => {
+            if (!err && giftcard) {
+                console.log("Gift Card", giftcard);
+                cart.add(giftcard, giftcard._id);
+                req.session.cart = cart;
+                // delete session fields.
+                delete req.session.cart.add;
+                delete req.session.cart.reduceByOne;
+                delete req.session.cart.removeItem;
+                delete req.session.cart.generateArray;
+                console.log("Session cart after add items.");
+                cartManager = req.session.cart;
+                console.log('cartManager: ', cartManager);
+                console.log('session: ', req.session);
+                res.redirect("/listgift");
+            } else {
+                console.log("No found data from Database!!");
+            }
+        });
+    })
+
+// Route show list GiftCard. require('../middlewares/login_middleware'),
+router
+    .route("/listgift")
+    .get((req, res) => {
+        var giftcard = {};
+        console.log("Session when user add to cart!");
+        console.log(cartManager);
+        var session = cartManager
+            ? cartManager
+            : {};
+        var cart = new Cart(session);
+        GiftCardService.listGift((err, giftcards) => {
+            if (!err && giftcards) {
+                // console.log(giftcards); console.log(giftcards[0].category);
+                res.render("index", {
+                    data: {
+                        giftcards: giftcards,
+                        session: cartManager,
+                        title: "List Gift Card",
+                        error: false
+                    }
+                });
+            } else {
+                console.log("Cound not insert DB!!");
+                console.log(err);
+                res.render("index", {
+                    data: {
+                        title: "List Gift Card",
+                        error: "Cound not insert DB!!"
+                    }
+                });
+            }
+        });
+    });
+
+// Router Shopping cart.
+router
+    .route("/shopping-cart/")
+    .get((req, res) => {
+        if (!cartManager) {
+            return res.render('shopping-cart', {
+                data: {
+                    title: "Shopping Cart",
+                    products: null
+                }
+            });
+        } else {
+            var cart = new Cart(cartManager);
+            console.log("----------------------");
+            // console.log(cart.generateArray());
+            console.log("----------------------");
+            res.render("shopping-cart", {
+                data: {
+                    title: "Shopping Cart",
+                    products: cart.generateArray(),
+                    totalPrice: cart.totalPrice
+                }
+            });
+        }
+    })
+
+/*  Router reduce gift card by id. COMPLETED.
+    Param: id: contain id gift card.
+*/
+router
+    .route('/reduce/:id')
+    .get((req, res, next) => {
+        if (cartManager) {
+            var productId = req.params.id;
+            var cart = new Cart(cartManager
+                ? cartManager
+                : {});
+            cart.reduceByOne(productId);
+            req.session.cart = cart;
+            // Cart manager.
+            cartManager = req.session.cart;
+            res.redirect('/shopping-cart');
+        } else {
+            res.redirect("/listgift");
+        }
+
+    })
+
+/*  Router remove a gift card by id. COMPLETED.
+    Param: id: contain id gift card.
+ */
+router
+    .route('/remove/:id')
+    .get((req, res, next) => {
+        var productId = req.params.id;
+        var cart = new Cart(cartManager
+            ? cartManager
+            : {});
+
+        cart.removeItem(productId);
+        req.session.cart = cart;
+        cartManager = req.session.cart;
+        res.redirect('/shopping-cart');
+    })
+
+/*  Router show information gift-card. COMPLETED.
+    Param: id: contain id gift card.
+*/
+router
+    .route("/gift-card/:id")
+    .get((req, res) => {
+        let id = req.params.id;
+
+        if (id) {
+            GiftCardService.listGiftById(id, (err, giftcards) => {
+                if (!err && giftcards) {
+                    console.log(giftcards);
+                } else {
+                    console.log("Can't found data from DB!!");
+                    console.log(err);
+                }
+            })
+        }
+    })
+
+//Route create GiftCard.
+router
+    .route("/gift-card/new")
+    .get((req, res) => {
+        var giftcard = {};
+        GiftCardService.addItem(giftcard, (err, giftcard) => {
+            if (!err && giftcard) {
+                console.log(giftcard);
+            } else {
+                console.log("Cound not insert DB!!");
+                console.log(err);
+            }
+        });
+    })
+
+// Route create Category.
+router
+    .route("/cate/new")
+    .get((req, res) => {
+        CategoryService.addItem((err, category) => {
+            if (!err && category) {
+                console.log(category);
+            } else {
+                console.log("Cound not insert DB!!");
+                console.log(err);
             }
         });
     })
@@ -56,25 +298,31 @@ router
         res.render("forgotpassword", {data: false});
     })
 
-// Router register
+// Router register : Completed
 router
     .route("/register")
     .get((req, res) => {
-        res.render("register", {data: false});
+        res.render("register", {
+            data: {
+                title: "Register"
+            }
+        });
     })
     .post((req, res) => {
         var user = req.body;
         if (user.email.trim().length == 0) {
             res.render("register", {
                 data: {
-                    error: "Email is required!"
+                    error: "Email is required!",
+                    title: "Register"
                 }
             });
         }
         if (user.password != user.repassword && user.password.trim().length != 0) {
             res.render("register", {
                 data: {
-                    error: "Password not match!"
+                    error: "Password not match!",
+                    title: "Register"
                 }
             });
         }
@@ -91,17 +339,22 @@ router
 
         UserService.register(createUser, (err, user) => {
             if (err) {
+                console.log("Error:", err);
                 res.render("register", {
                     data: {
-                        error: "Cannot insert DB"
+                        error: "Cannot insert DB",
+                        title: "Register"
                     }
                 });
             } else {
                 console.log("Insert successfully!!");
-                res.render("login", {data: false});
+                res.render("login", {
+                    data: {
+                        title: "Login"
+                    }
+                });
             }
         });
-
     })
 
 // Router buy gift card.
@@ -149,5 +402,15 @@ router
             });
     })
 
+// This will handle 404 requests.
+router
+    .route("*")
+    .get((req, res) => {
+        res
+            .status(404)
+            .send("404");
+    });
+
 // Export router.
+module.exports = router;
 module.exports = router;

@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-    <%- include ./layout/head %>
+<%- include('layout/head', {title : data.title}); %>
     <body>
         <div class="container">
             <div id="loginbox" style="margin-top:50px;" class="mainbox col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2">
@@ -10,29 +10,79 @@
                         <div style="float:right; font-size: 80%; position: relative; top:-10px"><a href="/forgot">Forgot password?</a></div>
                     </div>
                     <div style="padding-top:30px" class="panel-body">
-                        <form id="loginform" method="POST" action="/login" role="form" class="form-horizontal">
-                            <div style="margin-bottom: 25px" class="input-group"><span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
-                                <input id="login-username" type="text" name="email" placeholder="Enter your email" class="form-control" />
+                        <form id="loginform" action="/login" method="POST" role="form">
+                            <div id="signupalert" style="<% if(!data || !data.error ) {%>display:none<%}%>" class="alert alert-danger">
+                                <small>Error :</small>
+                                <%if (data && data.error) {%>
+                                    <small><%= data.error%></small>
+                                    <%}%>
                             </div>
-                            <div style="margin-bottom: 25px" class="input-group"><span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
-                                <input id="login-password" type="password" name="password" placeholder="Enter your password" class="form-control" />
+                            <div class="form-group">
+                                <input type="text" name="email" id="email" tabindex="1" class="form-control" placeholder="Please enter email" data-error="#errorEmail">
+                                <small style="color: red;" id="errorEmail"></small>
                             </div>
-                            <div style="margin-top:10px" class="form-group">
-                                <!-- Button-->
-                                <div class="col-sm-12 controls">
-                                    <input id="btn-login" type="submit" value="Login" class="btn btn-success" />
+                            <div class="form-group">
+                                <input type="password" name="password" id="password" tabindex="2" class="form-control" placeholder="Please enter password" data-error="#errorPassword">
+                                <small style="color: red;" id="errorPassword"></small>
+                            </div>
+                            <div class="form-group">
+                                <div class="row">
+                                    <div class="col-sm-6 col-sm-offset-3">
+                                        <input type="submit" name="login-submit" tabindex="4" class="form-control btn btn-info" value="Log In">
+                                    </div>
                                 </div>
                             </div>
                         </form>
                         <!-- end form-->
-                        <div class="form-group">
-                            <div class="col-md-12 control">
-                                <div style="border-top: 1px solid#888; padding-top:15px; font-size:85%">Don't have an account!&nbsp;<a href="/register">Sign Up Here</a></div>
+                        <div class="form-group ">
+                            <div class="col-md-12 control ">
+                                <div style="border-top: 1px solid#888; padding-top:15px; font-size:85% ">Don't have an account!&nbsp;<a href="/register ">Sign Up Here</a></div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.16.0/jquery.validate.min.js"></script>
+        <script type="text/javascript">
+            // just for the demos, avoids form submit
+            // jQuery.validator.setDefaults({
+            //     debug: true,
+            //     success: "valid"
+            // });
+            $("#loginform").validate({
+                rules: {
+                    email: {
+                        required: true,
+                        email: true
+                    },
+                    password: {
+                        required: true,
+                        maxlength: 20,
+                        minlength: 4
+                    }
+                },
+                messages: {
+                    email: {
+                        required: "Please email field not required!",
+                        email: "Please enter email!"
+                    },
+                    password: {
+                        required: "Please password field not required!",
+                        maxlength: "This password field less than 20 characters!",
+                        minlength: "This password field more than 4 characters!"
+                    }
+                },
+                errorElement: "span",
+                errorPlacement: function(error, element) {
+                    var placement = $(element).data("error");
+                    if (placement) {
+                        $(placement).append(error)
+                    } else {
+                        error.insertAfter(element);
+                    }
+                }
+            });
+        </script>
     </body>
 </html>
