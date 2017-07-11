@@ -14,10 +14,16 @@ const UserSchema = new mongoose.Schema({
     fullName: String,
     admin: Boolean,
     salt: Number,
+    block: {
+        type: Number,
+        default: 0
+    },
     resetPasswordToken: String,
     resetPasswordExpires: Date,
-    block: Number,
-    created_at: Date,
+    created_at: {
+        type: Date,
+        default: Date.now
+    },
     updated_at: Date,
     giftCard: [
         {

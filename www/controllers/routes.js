@@ -177,7 +177,7 @@ router
         });
     });
 
-// Router Shopping cart.
+// Router Shopping cart. COMPLATED.
 router
     .route("/shopping-cart/")
     .get((req, res) => {
@@ -231,15 +231,19 @@ router
 router
     .route('/remove/:id')
     .get((req, res, next) => {
-        var productId = req.params.id;
-        var cart = new Cart(cartManager
-            ? cartManager
-            : {});
+        if (cartManager) {
+            var productId = req.params.id;
+            var cart = new Cart(cartManager
+                ? cartManager
+                : {});
 
-        cart.removeItem(productId);
-        req.session.cart = cart;
-        cartManager = req.session.cart;
-        res.redirect('/shopping-cart');
+            cart.removeItem(productId);
+            req.session.cart = cart;
+            cartManager = req.session.cart;
+            res.redirect('/shopping-cart');
+        } else {
+            res.redirect("/listgift");
+        }
     })
 
 /*  Router show information gift-card. COMPLETED.
@@ -412,5 +416,4 @@ router
     });
 
 // Export router.
-module.exports = router;
 module.exports = router;

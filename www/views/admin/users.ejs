@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('layout/head', {title: data.title ? data.title : ""}); %>
+    <body>
+        <%- include('layout/nav'); %>
+        <div class="container">
+            <div class="row">
+                <% if (data && data.users) { %>
+                    <% let users = data.users; %>
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>##</th>
+                                <th>Email</th>
+                                <th>Full Name</th>
+                                <th>Admin</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% users.forEach(function(user,index){%>
+                                <tr>
+                                    <th scope="row">
+                                        <%=index;%>
+                                    </th>
+                                    <td>
+                                        <%=user.email;%>
+                                    </td>
+                                    <td>
+                                        <%=user.fullName;%>
+                                    </td>
+                                    <td>
+                                        <%=user.admin;%>
+                                    </td>
+                                    <% if (!user.admin) {%>
+                                    <td>
+                                        <a href="/admin/user/edit/<%=user._id%>"><span class="btn btn-primary">Update</span></a>
+                                        <span class="btn btn-danger deleteItem" data-id="<%=user._id%>">Delete</span>
+                                    </td>
+                                    <% } else { %>
+                                        <td><i class="fa fa-ban" aria-hidden="true"></i></td>
+                                    <% } %>
+                                </tr>
+                                <% }) %>
+                        </tbody>
+                    </table>
+                <% } else { %>
+                    <h3>No found result!</h3>
+                <% } %>
+            </div>
+        </div>
+        <script type="text/javascript">
+            $(document).ready(function(){
+                $(".deleteItem").click(function() {
+                    var value = $(this).data("id") ;
+                    var choose = confirm("Are you want to delete!");
+                    if (choose) {
+                        $.ajax({
+                            method: "POST",
+                            url: "/admin/user/delete",
+                            data: { id: value }
+                        })
+                        .done(function(msg) {
+                            console.log( "Successfully : " + msg );
+                            alert("Delete successfully!!")
+                            location.reload();
+                        });
+                    }
+
+                })
+            });
+        </script>
+    </body>
+</html>

@@ -30,6 +30,8 @@ app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 
+// Routing Admin.
+app.use("/admin/", require("./www/controllers/admin.js"));
 // Routing.
 app.use(require("./www/controllers/routes.js"));
 
