@@ -20,23 +20,16 @@ const OrderBidSchema = new mongoose.Schema({
             ref: 'Transaction'
         }
     ],
-    id: {
-        type: int,
-        required: true,
-        unique: true
-    },
     price: {
-        type: int,
-        required: true,
-        unique: true
+        type: Number,
+        required: true
     },
     fromPrice_toPrice: {
-        type: int,
+        type: Number,
         required: true
     },
     expiresDate: {
-        type: Date,
-        required: true
+        type: Date
     },
     created_at: {
         type: Date,

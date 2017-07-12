@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<%- include('layout/head', {title : data.title}); %>
+<body>
+<%- include('layout/nav', {cart : data.session}); %>
+<div class="container" style="padding-top: 40px;">
+    <div class="row-fluid">
+        <div class="col-xs-2 col-md-2 portfolio-item">
+            <div class="<span></span>3 sidebar hidden-phone">
+
+                <ul class="nav nav-list nav-sidebar-filter hidden-phone">
+                    <li class="nav-header">
+                        Specials
+                    </li>
+                    <li class="on-sale">
+                        <a href="#">On Sale</a>
+                    </li>
+                </ul>
+
+                <ul class="nav nav-list nav-sidebar-filter hidden-phone">
+                    <li class="nav-header">
+                        By Price
+                    </li>
+                    <li>
+                        <a href="#">$25 - $50</a>
+                    </li>
+                    <li>
+                        <a href="#">$50 - $100</a>
+                    </li>
+                    <li>
+                        <a href="#">$100 - $250</a>
+                    </li>
+                    <li>
+                        <a href="#">$250 - $500</a>
+                    </li>
+                    <li>
+                        <a href="#">$500+</a>
+                    </li>
+                </ul>
+
+                <ul class="nav nav-list nav-sidebar-filter hidden-phone">
+                    <li class="nav-header">
+                        Card Type
+                    </li>
+                    <li>
+                        <a href="#">Physical</a>
+                    </li>
+                    <li>
+                        <a href="#">Electronic
+                        </a>
+                    </li>
+                </ul>
+
+                <ul class="nav nav-list nav-sidebar-filter categories-top hidden-phone">
+                    <li class="nav-header">
+                        Categories
+                    </li>
+                    <li>
+                        <a href="#">Arts and Crafts</a>
+                    </li>
+                    <li>
+                        <a href="#">Automotive</a>
+                    </li>
+                    <li>
+
+                </ul>
+
+                <ul class="nav nav-list nav-sidebar-filter hidden-phone">
+                    <li class="nav-header">
+                        By Location
+                    </li>
+                    <li class="">
+                        <a href="#">Chicago</a>
+                    </li>
+                </ul>
+
+            </div>
+        </div>
+        <div class="col-md-10 portfolio-item">
+            <div class="row pad-vert-mini">
+                <h3 class="reset pull-left">List Gift Cards</h3>
+            </div>
+            <div class="row">
+                <% if (data && data.error) {%>
+                <p><%=data.error %></p>
+                <% } %>
+                <% if (data && data.giftcards) {%>
+                <% var giftcards = data.giftcards; %>
+                <% for (let i = 0 ; i < giftcards.length ; i++) {%>
+
+                <div class="col-sm-6 col-md-4">
+                    <div class="thumbnail">
+                        <img src="https://dnrzlv4wd9rbi.cloudfront.net/assets/product-sources/75/medium/itunes-gift-card.png?1470324371" alt="Buy iTunes Gift Card" data-src="https://dnrzlv4wd9rbi.cloudfront.net/assets/product-sources/75/medium/itunes-gift-card.png?1470324371" alt="..." class="img-responsive">
+                        <div class="caption">
+                            <h3><%=giftcards[i].category[0].name %></h3>
+                            <p class="description"><%=giftcards[i].description %></p>
+                            <div class="clearfix">
+                                <div class="price pull-left">$<%=giftcards[i].series %></div>
+                                <a href="/add-to-cart/<%=giftcards[i]._id; %>" class="btn btn-success pull-right" role="button">Add Shopping Cart</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <% } %>
+                <% } else { %>
+                <p>No result found!!</p>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</div>
+<%- include ./layout/footer %>

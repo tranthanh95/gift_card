@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('layout/head', {title: data.title ? data.title : ""}); %>
+<body>
+<%- include('layout/nav', {title: data.title ? data.title : ""}); %>
+    <div class="container">
+        <div class="row">
+            GiftCards
+        </div>
+    </div>
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $(".deleteItem").click(function() {
+                var value = $(this).data("id") ;
+                var choose = confirm("Are you want to delete!");
+                if (choose) {
+                    $.ajax({
+                        method: "POST",
+                        url: "/admin/user/delete",
+                        data: { id: value }
+                    })
+                    .done(function(msg) {
+                        console.log( "Successfully : " + msg );
+                        alert("Delete successfully!!")
+                        location.reload();
+                    });
+                }
+
+            })
+        });
+    </script>
+</body>
+</html>

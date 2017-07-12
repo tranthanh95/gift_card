@@ -6,14 +6,18 @@
         <div class="row-fluid">
             <div class="col-xs-2 col-md-2 portfolio-item">
                 <div class="<span></span>3 sidebar hidden-phone">
-
                     <ul class="nav nav-list nav-sidebar-filter hidden-phone">
+                        <% if (data && data.categories) { %>
                         <li class="nav-header">
-                            Specials
+                            Categories
                         </li>
+                        <% var categories = data.categories; %>
+                        <% for (let category of categories) { %>
                         <li class="on-sale">
-                            <a href="#">On Sale</a>
+                            <a href="/cate/<%=category._id %>"><%=category.name; %></a>
                         </li>
+                        <% } %>
+                        <% } %>
                     </ul>
 
                     <ul class="nav nav-list nav-sidebar-filter hidden-phone">
@@ -39,37 +43,10 @@
 
                     <ul class="nav nav-list nav-sidebar-filter hidden-phone">
                         <li class="nav-header">
-                            Card Type
-                        </li>
-                        <li>
-                            <a href="#">Physical</a>
-                        </li>
-                        <li>
-                            <a href="#">Electronic
-                                </a>
-                        </li>
-                    </ul>
-
-                    <ul class="nav nav-list nav-sidebar-filter categories-top hidden-phone">
-                        <li class="nav-header">
-                            Categories
-                        </li>
-                        <li>
-                            <a href="#">Arts and Crafts</a>
-                        </li>
-                        <li>
-                            <a href="#">Automotive</a>
-                        </li>
-                        <li>
-
-                    </ul>
-
-                    <ul class="nav nav-list nav-sidebar-filter hidden-phone">
-                        <li class="nav-header">
                             By Location
                         </li>
                         <li class="">
-                            <a href="/local/chicago">Chicago</a>
+                            <a href="#">Chicago</a>
                         </li>
                     </ul>
 

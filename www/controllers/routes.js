@@ -146,6 +146,7 @@ router
 router
     .route("/listgift")
     .get((req, res) => {
+        // Contain gift card when user choose.
         var giftcard = {};
         console.log("Session when user add to cart!");
         console.log(cartManager);
@@ -153,17 +154,34 @@ router
             ? cartManager
             : {};
         var cart = new Cart(session);
+        // Call Service list gift.
         GiftCardService.listGift((err, giftcards) => {
             if (!err && giftcards) {
-                // console.log(giftcards); console.log(giftcards[0].category);
-                res.render("index", {
-                    data: {
-                        giftcards: giftcards,
-                        session: cartManager,
-                        title: "List Gift Card",
-                        error: false
+                // Call Service receive list categories.
+                CategoryService.listCategory((err, categories) => {
+                    if (!err && categories) {
+                        res.render("index", {
+                            data: {
+                                categories: categories,
+                                giftcards: giftcards,
+                                session: cartManager,
+                                title: "List Gift Card",
+                                error: false
+                            }
+                        });
+                    } else {
+                        console.log();
+                        res.render("index", {
+                            data: {
+                                giftcards: giftcards,
+                                session: cartManager,
+                                title: "List Gift Card",
+                                error: false
+                            }
+                        });
                     }
                 });
+
             } else {
                 console.log("Cound not insert DB!!");
                 console.log(err);
@@ -177,7 +195,7 @@ router
         });
     });
 
-// Router Shopping cart. COMPLATED.
+// Router Shopping cart. COMPLETED.
 router
     .route("/shopping-cart/")
     .get((req, res) => {
@@ -196,24 +214,26 @@ router
             res.render("shopping-cart", {
                 data: {
                     title: "Shopping Cart",
-                    products: cart.generateArray(),
-                    totalPrice: cart.totalPrice
+                    products: cart.generateArray(), // Generate Array from Cart.
+                    totalPrice: cart.totalPrice // get totalPrice from Cart.
                 }
             });
         }
     })
 
 /*  Router reduce gift card by id. COMPLETED.
-    Param: id: contain id gift card.
-*/
+ Param: id: contain id gift card.
+ */
 router
     .route('/reduce/:id')
     .get((req, res, next) => {
         if (cartManager) {
+            // Get id product from client request.
             var productId = req.params.id;
             var cart = new Cart(cartManager
                 ? cartManager
                 : {});
+            // Reduce item in cart.
             cart.reduceByOne(productId);
             req.session.cart = cart;
             // Cart manager.
@@ -226,17 +246,18 @@ router
     })
 
 /*  Router remove a gift card by id. COMPLETED.
-    Param: id: contain id gift card.
+ Param: id: contain id gift card.
  */
 router
     .route('/remove/:id')
     .get((req, res, next) => {
         if (cartManager) {
+            // Get id product from client request.
             var productId = req.params.id;
             var cart = new Cart(cartManager
                 ? cartManager
                 : {});
-
+            // Remove item in cart.
             cart.removeItem(productId);
             req.session.cart = cart;
             cartManager = req.session.cart;
@@ -247,8 +268,8 @@ router
     })
 
 /*  Router show information gift-card. COMPLETED.
-    Param: id: contain id gift card.
-*/
+ Param: id: contain id gift card.
+ */
 router
     .route("/gift-card/:id")
     .get((req, res) => {
@@ -281,16 +302,66 @@ router
         });
     })
 
+// Route show list Category.
+router
+    .route("/cates")
+    .get((req, res) => {
+        // Service add Category.
+        CategoryService.listCategory((err, categories) => {
+            if (!err && categories) {
+                console.log(categories);
+                res.render("list-category", {
+                    data: {
+                        title: "List Category",
+                        session: cartManager,
+                        categories: categories
+                    }
+                })
+            } else {
+                console.log("Cound not found DB!!");
+                console.log(err);
+            }
+        });
+    })
+
 // Route create Category.
 router
-    .route("/cate/new")
+    .route("/cate/:id")
     .get((req, res) => {
-        CategoryService.addItem((err, category) => {
-            if (!err && category) {
-                console.log(category);
+        let cateId = req.params.id;
+        // Service add Category.
+        CategoryService.listCategory((err, categories) => {
+            if (!err && categories) {
+                GiftCardService.listGiftByCate(cateId, (err, giftcards) => {
+                    if (!err && giftcards) {
+                        // console.log(giftcards);
+                        res.render("index", {
+                            data: {
+                                title: "Category",
+                                session: cartManager,
+                                categories: categories,
+                                giftcards: giftcards
+                            }
+                        })
+                    } else {
+                        console.log("Error: ");
+                        console.log(err);
+                        res.render("index", {
+                            data: {
+                                title: "Category",
+                                session: cartManager,
+                                categories: categories
+                            }
+                        })
+                    }
+                })
             } else {
-                console.log("Cound not insert DB!!");
-                console.log(err);
+                res.render("index", {
+                    data: {
+                        title: "Category",
+                        error: "Cound not found Category form DB!!"
+                    }
+                });
             }
         });
     })
@@ -302,7 +373,7 @@ router
         res.render("forgotpassword", {data: false});
     })
 
-// Router register : Completed
+// Router register : COMPLETED.
 router
     .route("/register")
     .get((req, res) => {
@@ -333,6 +404,7 @@ router
         // Random salt when user create.
         var salt = Math.round(Math.random() * 10 + 5);
 
+        // Hash password from salt random.
         var hash = helper.hash_password(user.password, salt);
         var createUser = {
             email: user.email,
@@ -340,7 +412,7 @@ router
             fullname: user.fullname,
             salt: salt
         };
-
+        // Call Service create user.
         UserService.register(createUser, (err, user) => {
             if (err) {
                 console.log("Error:", err);

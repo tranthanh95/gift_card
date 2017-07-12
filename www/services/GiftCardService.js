@@ -9,6 +9,17 @@ const GiftCardService = {
             .exec(callback);
     },
 
+    listGiftByCate: function(idCate, callback) {
+        GiftCard
+            .find({category: idCate})
+            .populate({
+                path: 'category',
+                match: { _id: { $eq: idCate }},
+                options: { limit: 5 }
+            })
+            .exec(callback);
+    },
+
     listGiftById: function (id, callback) {
         GiftCard
             .find({_id: id})

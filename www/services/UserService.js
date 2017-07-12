@@ -3,23 +3,23 @@ const User = require('../models/User.js');
 const UserService = {
 
     /*  Service find all user if user not block.
-       PARAMS: email.
-    */
+     PARAMS: email.
+     */
     listUser: function (callback) {
         User.find({
             block: 0
         }, callback)
     },
     /*  Service find user by id.
-       PARAMS: id.
-    */
+     PARAMS: id.
+     */
     findUserById(id, callback) {
         User.findOne({
             _id: id
         }, callback)
     },
     /*  Service find user by email.
-        PARAMS: email.
+     PARAMS: email.
      */
     findUserByEmail(email, callback) {
         User.findOne({
@@ -28,7 +28,7 @@ const UserService = {
     },
 
     /*  Service update user.
-        PARAMS: user(_id, email, fullName, admin).
+     PARAMS: user(_id, email, fullName, admin).
      */
     updateUser(user, callback) {
         console.log((user.admin == 0)
@@ -74,4 +74,5 @@ const UserService = {
     }
 }
 
+// Export module.
 module.exports = UserService;

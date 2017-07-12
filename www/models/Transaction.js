@@ -15,9 +15,8 @@ const TransactionSchema = new mongoose.Schema({
         }
     ],
     price: {
-        type: int,
-        required: true,
-        unique: true
+        type: Number,
+        required: true
     },
     descriptions: {
         type: String,
