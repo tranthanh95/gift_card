@@ -14,6 +14,8 @@ const helper = require("../helpers/helper.js");
 
 // Session cart.
 var cartManager;
+// Session user.
+var sessionUser;
 
 // GET Homepage.
 router
@@ -27,21 +29,21 @@ router
         res.render("index", {
             data: {
                 title: "My home page",
-                session: cartManager
+                session: cartManager // Send cart session.
             }
         });
     })
 
 // Router get all users.
 router
-    .route("/user")
+    .route("/users")
     .get((req, res) => {
         UserService.listUser((err, users) => {
             if (!err && users) {
                 console.log(users);
                 res.render("user", {
                     data: {
-                        users: users,
+                        users: users, // send list users.
                         title: "List Users"
                     }
                 });
@@ -55,11 +57,16 @@ router
     .route("/user/:id")
     .get((req, res) => {
         var id = req.params.id;
+        console.log("ID:", id);
         UserService.findUserById(id, (err, user) => {
             if (!err && user) {
+                console.log("User", user);
+                console.log(sessionUser);
                 res.render("userinfor", {
                     data: {
-                        title: "UserInfor"
+                        title: "UserInfor",
+                        user: user,
+                        userInfor: sessionUser
                     }
                 });
             }
@@ -81,63 +88,108 @@ router
         UserService.findUserByEmail(userInfor.email, (err, user) => {
             if (!err && user) {
                 console.log("Successfully");
+                // Check password.
                 var status = helper.compare_password(userInfor.password, user.password);
                 if (status) {
                     req.session.user = user;
-                    delete req.session.user.password; // Delete password in session.
-                    delete req.session.user.salt; // Delete salt in session.
-                    console.log(req.session.user);
+                    // delete user session fields.
+                    req.session.user.password = null;
+                    req.session.user.admin = null;
+                    req.session.user.salt = null;
+                    req.session.user.block = null;
+                    req.session.user.orderAsk = null;
+                    req.session.user.orderBid = null;
+                    req.session.user.giftCard = null;
+                    sessionUser = req.session.user;
+                    console.log("Login successfully!!");
                     res.render("index", {
                         data: {
-                            title: "Homepage"
+                            title: "Homepage",
+                            user: sessionUser // session when user login successfully.
                         }
                     });
                 } else {
+                    // When user enter Password wrong!
                     res.render("login", {
                         data: {
                             error: "Password wrong!!",
-                            title: "Login"
+                            title: "Login",
+                            userInfor: userInfor
                         }
                     });
                 }
             } else {
-                console.log("error");
+                // When user enter email or password wrong!
                 res.render("login", {
                     data: {
-                        error: "Username or password Wrong!!",
-                        title: "Login"
+                        error: "Email or password Wrong!!",
+                        title: "Login",
+                        userInfor: userInfor
                     }
                 });
             }
         });
     })
 
-// Router add to cart.
+// Router register : COMPLETED.
 router
-    .route("/add-to-cart/:id")
+    .route("/register")
     .get((req, res) => {
-        var giftId = req.params.id;
-        // console.log(giftId);
-        var cart = new Cart(cartManager
-            ? cartManager
-            : {});
-        GiftCardService.giftById(giftId, (err, giftcard) => {
-            if (!err && giftcard) {
-                console.log("Gift Card", giftcard);
-                cart.add(giftcard, giftcard._id);
-                req.session.cart = cart;
-                // delete session fields.
-                delete req.session.cart.add;
-                delete req.session.cart.reduceByOne;
-                delete req.session.cart.removeItem;
-                delete req.session.cart.generateArray;
-                console.log("Session cart after add items.");
-                cartManager = req.session.cart;
-                console.log('cartManager: ', cartManager);
-                console.log('session: ', req.session);
-                res.redirect("/listgift");
+        res.render("register", {
+            data: {
+                title: "Register"
+            }
+        });
+    })
+    .post((req, res) => {
+        var userInfor = req.body;
+        if (userInfor.email.trim().length == 0) {
+            res.render("register", {
+                data: {
+                    error: "Email is required!",
+                    title: "Register",
+                    userInfor: userInfor
+                }
+            });
+        }
+        if (userInfor.password != userInfor.repassword && userInfor.password.trim().length != 0) {
+            res.render("register", {
+                data: {
+                    error: "Password not match!",
+                    title: "Register",
+                    userInfor: userInfor
+                }
+            });
+        }
+        // Random salt when user create.
+        var salt = Math.round(Math.random() * 10 + 5);
+
+        // Hash password from salt random.
+        var hash = helper.hash_password(userInfor.password, salt);
+        // Information user user create.
+        var createUser = {
+            email: userInfor.email,
+            password: hash,
+            fullname: userInfor.fullname,
+            salt: salt
+        };
+        // Call Service create user.
+        UserService.register(createUser, (err, user) => {
+            if (err) {
+                console.log("Error:", err);
+                res.render("register", {
+                    data: {
+                        error: "Cannot insert DB",
+                        title: "Register"
+                    }
+                });
             } else {
-                console.log("No found data from Database!!");
+                console.log("Insert successfully!!");
+                res.render("login", {
+                    data: {
+                        title: "Login"
+                    }
+                });
             }
         });
     })
@@ -160,11 +212,13 @@ router
                 // Call Service receive list categories.
                 CategoryService.listCategory((err, categories) => {
                     if (!err && categories) {
+                        console.log("Session User: ", sessionUser);
                         res.render("index", {
                             data: {
                                 categories: categories,
                                 giftcards: giftcards,
                                 session: cartManager,
+                                user: sessionUser,
                                 title: "List Gift Card",
                                 error: false
                             }
@@ -195,6 +249,36 @@ router
         });
     });
 
+// Router add to cart.
+router
+    .route("/add-to-cart/:id")
+    .get((req, res) => {
+        var giftId = req.params.id;
+        // console.log(giftId);
+        var cart = new Cart(cartManager
+            ? cartManager
+            : {});
+        GiftCardService.giftById(giftId, (err, giftcard) => {
+            if (!err && giftcard) {
+                console.log("Gift Card", giftcard);
+                cart.add(giftcard, giftcard._id);
+                req.session.cart = cart;
+                // delete cart session fields.
+                delete req.session.cart.add;
+                delete req.session.cart.reduceByOne;
+                delete req.session.cart.removeItem;
+                delete req.session.cart.generateArray;
+                console.log("Session cart after add items.");
+                cartManager = req.session.cart;
+                console.log('cartManager: ', cartManager);
+                console.log('session: ', req.session);
+                res.redirect("/listgift");
+            } else {
+                console.log("No found data from Database!!");
+            }
+        });
+    })
+
 // Router Shopping cart. COMPLETED.
 router
     .route("/shopping-cart/")
@@ -208,9 +292,7 @@ router
             });
         } else {
             var cart = new Cart(cartManager);
-            console.log("----------------------");
             // console.log(cart.generateArray());
-            console.log("----------------------");
             res.render("shopping-cart", {
                 data: {
                     title: "Shopping Cart",
@@ -250,7 +332,7 @@ router
  */
 router
     .route('/remove/:id')
-    .get((req, res, next) => {
+    .get((req, res) => {
         if (cartManager) {
             // Get id product from client request.
             var productId = req.params.id;
@@ -373,73 +455,70 @@ router
         res.render("forgotpassword", {data: false});
     })
 
-// Router register : COMPLETED.
-router
-    .route("/register")
-    .get((req, res) => {
-        res.render("register", {
-            data: {
-                title: "Register"
-            }
-        });
-    })
-    .post((req, res) => {
-        var user = req.body;
-        if (user.email.trim().length == 0) {
-            res.render("register", {
-                data: {
-                    error: "Email is required!",
-                    title: "Register"
-                }
-            });
-        }
-        if (user.password != user.repassword && user.password.trim().length != 0) {
-            res.render("register", {
-                data: {
-                    error: "Password not match!",
-                    title: "Register"
-                }
-            });
-        }
-        // Random salt when user create.
-        var salt = Math.round(Math.random() * 10 + 5);
-
-        // Hash password from salt random.
-        var hash = helper.hash_password(user.password, salt);
-        var createUser = {
-            email: user.email,
-            password: hash,
-            fullname: user.fullname,
-            salt: salt
-        };
-        // Call Service create user.
-        UserService.register(createUser, (err, user) => {
-            if (err) {
-                console.log("Error:", err);
-                res.render("register", {
-                    data: {
-                        error: "Cannot insert DB",
-                        title: "Register"
-                    }
-                });
-            } else {
-                console.log("Insert successfully!!");
-                res.render("login", {
-                    data: {
-                        title: "Login"
-                    }
-                });
-            }
-        });
-    })
-
 // Router buy gift card.
 router
     .route("/buy")
     .get((req, res) => {
-        res.render("buygift", {
-            data: false,
-            title: "Buy"
+        var sessUser = new User(sess
+            ? sess
+            : {});
+
+        if (sess) {
+            req.session.sessUser = sessUser;
+            sess = req.session.sessUser;
+            CategoryService.listCategory((err, categorys) => {
+                if (!err && categorys) {
+                    res.render("buygift", {
+                        data: {
+                            categorys: categorys,
+                            title: "Buy",
+                            session: sess,
+                            err: false
+                        }
+                    });
+                } else {
+                    console.log(err);
+                }
+            });
+        } else {
+            res.render('login', {
+                data: {
+                    err: "Do not login",
+                    title: "Login"
+                }
+            });
+            console.log("do not login");
+        };
+    })
+    .post((req, res) => {
+        var giftId;
+        var giftcard = req.body;
+        var CreateOrderAsk = {
+            user: sess,
+            giftcard: giftId,
+            priceask: giftcard.priceask
+        };
+
+        OrderAskService.addItem(CreateOrderAsk, (err, data) => {
+            if (!err && data) {
+                giftId = data._id;
+                // Information OrderAsk.
+                CreateOrderAsk = {
+                    user: sess,
+                    giftcard: giftId,
+                    priceask: giftcard.priceask
+                };
+                console.log('insert buy giftcard successfully');
+                console.log("giftId: ", giftId);
+                res.render("index", {
+                    data: {
+                        title: "Done",
+                        err: false
+                    }
+                });
+            } else {
+                console.log(err);
+            }
         });
     })
 

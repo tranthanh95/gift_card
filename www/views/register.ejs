@@ -17,13 +17,13 @@
                         </div>
                         <div class="form-group">
                             <!--<label for="email" class="col-md-3 control-label">Email:</label>-->
-                            <input type="email" name="email" placeholder="Email Address" class="form-control email" data-error="#errorEmail" />
+                            <input type="email" name="email" placeholder="Email Address" class="form-control email" data-error="#errorEmail" <% if (data && data.userInfor) { %> value="<%=data.userInfor.email;%>" <% } %> />
                             <small style="color: red;" id="errorEmail"></small>
                         </div>
                         <div class="form-group">
                             <!--<label for="fullname" class="col-md-3 control-label">Fullname:</label>-->
                             <!--<div class="col-md-9">-->
-                            <input type="text" name="fullname" placeholder="Fullname" class="form-control fullname" data-error="#errorFullname" />
+                            <input type="text" name="fullname" placeholder="Fullname" class="form-control fullname" data-error="#errorFullname" <% if (data && data.userInfor) { %> value="<%=data.userInfor.fullname;%>" <% } %> />
                             <small style="color: red;" id="errorFullname"></small>
                             <!--</div>-->
                         </div>
@@ -86,19 +86,19 @@
                 },
                 messages: {
                     email: {
-                        required: "Please email field not required!",
+                        required: "Email field required!",
                         email: "Please enter email! "
                     },
                     fullname: {
-                        required: "Please fullname field not required!"
+                        required: "Fullname field required!"
                     },
                     password: {
-                        required: "Please password field not required! ",
-                        maxlength: "This password field less than 20 characters! ",
-                        minlength: "This password field more than 4 characters! "
+                        required: "Password field not required! ",
+                        maxlength: "Password field less than 20 characters! ",
+                        minlength: "Password field more than 4 characters! "
                     },
                     repassword: {
-                        required: "Please password field not required! ",
+                        required: "Password field not required! ",
                         equalTo: "Password not match!"
                     }
                 },

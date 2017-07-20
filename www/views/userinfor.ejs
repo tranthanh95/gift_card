@@ -3,25 +3,27 @@
 <%- include('layout/head', {title : data.title}); %>
 
 <body>
-<%- include('layout/nav', {cart : data.session }); %>
+<%- include('layout/nav', {cart : data.session, user: data.userInfor }); %>
     <div class="container">
         <br/>
         <div class="row">
             <!-- left column-->
             <!-- edit form column-->
+            <% if (data && data.user) {%>
+            <% var user = data.user; %>
             <div class="col-md-9 personal-info col-md-offset-2">
                 <h3>Information User.</h3>
                 <form role="form" class="form-horizontal">
                     <div class="form-group">
                         <label class="col-lg-3 control-label text-right">Email :</label>
                         <div class="col-lg-8">
-                            <input type="text" value="" class="form-control" disabled/>
+                            <input type="text" value="<%=user.email;%>" class="form-control" disabled/>
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="col-lg-3 control-label text-right">FullName :</label>
                         <div class="col-lg-8">
-                            <input type="text" value="" class="form-control" disabled/>
+                            <input type="text" value="<%=user.fullName;%>" class="form-control" disabled/>
                         </div>
                     </div>
                     <!--<div class="form-group">
@@ -31,32 +33,27 @@
                             <p class="help-block">Please enter the image.</p>
                         </div>
                     </div>-->
-                    <div class="form-group">
-                        <label class="col-md-3 control-label">Password :</label>
-                        <div class="col-md-8">
-                            <input type="text" class="form-control" disabled/>
-                        </div>
-                    </div>
+                    
                     <div class="form-group">
                         <label class="col-md-3 control-label">Admin :</label>
                         <div class="col-md-8">
                             <label class="radio-inline">
-                        <input type="radio" name="optradio"/>OK
-                    </label>
+                                <input type="radio" name="optradio" <% if (user.admin) {%> checked="checked" <% }%> disabled/>OK
+                            </label>
                             <label class="radio-inline">
-                        <input type="radio" name="optradio"/>No
-                    </label>
+                                <input type="radio" name="optradio" <% if (!user.admin) {%> checked="checked" <% }%> disabled/>No
+                            </label>
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="col-md-3 control-label"></label>
                         <div class="col-md-8">
-                            <input type="button" value="Save Changes" class="btn btn-primary" /><span>&nbsp</span>
-                            <input type="reset" value="Cancel" class="btn btn-default" />
+                            <a href="/listgift" class="btn btn-primary" >&nbsp;OK&nbsp;</a><span>&nbsp</span>
                         </div>
                     </div>
                 </form>
             </div>
+            <% } %>
         </div>
     </div>
     <hr/>

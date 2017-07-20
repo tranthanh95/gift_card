@@ -2,7 +2,7 @@
 <html>
 <%- include('layout/head', {title : data.title}); %>
 <body>
-    <%- include('layout/nav', {cart : data.session }); %>
+    <%- include('layout/nav', {cart : data.session, user: data.user }); %>
     <div class="container">
         <h1>Buy Gift</h1>
         <hr/>

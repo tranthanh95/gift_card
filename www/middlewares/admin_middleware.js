@@ -1,5 +1,5 @@
-function logger(req, res, next) {
-    if (req.session.user) {
+const adminMw = function (req, res, next) {
+    if (req.session.user && req.session.user.userClss == 'admin') {
         next();
     } else {
         res.render("login", {
@@ -8,6 +8,6 @@ function logger(req, res, next) {
             }
         });
     }
-}
+};
 
-module.exports = logger;
+module.exports = adminMw;

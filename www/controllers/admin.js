@@ -8,6 +8,9 @@ const GiftCardService = require("../services/GiftCardService");
 /* Handler req.session.user (admin == 1) */
 var sessionAdmin;
 
+// Using middlewares.
+router.use(require('../middlewares/admin_middleware'));
+
 //Router index admin.
 router
     .route("/")
@@ -18,6 +21,8 @@ router
             }
         });
     })
+
+// Profile admin.
 router
     .route("/profile")
     .get((req, res) => {

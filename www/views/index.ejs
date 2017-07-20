@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <%- include('layout/head', {title : data.title}); %>
 <body>
-    <%- include('layout/nav', {cart : data.session}); %>
+    <%- include('layout/nav', {cart : data.session, user: data.user}); %>
     <div class="container" style="padding-top: 40px;">
         <div class="row-fluid">
             <div class="col-xs-2 col-md-2 portfolio-item">

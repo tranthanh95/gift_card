@@ -18,11 +18,11 @@
                                     <%}%>
                             </div>
                             <div class="form-group">
-                                <input type="text" name="email" id="email" tabindex="1" class="form-control" placeholder="Please enter email" data-error="#errorEmail">
+                                <input type="text" name="email" id="email" tabindex="1" class="form-control" placeholder="Please enter email" data-error="#errorEmail" <% if (data && data.userInfor) { %> value="<%=data.userInfor.email;%>" <% } %> />
                                 <small style="color: red;" id="errorEmail"></small>
                             </div>
                             <div class="form-group">
-                                <input type="password" name="password" id="password" tabindex="2" class="form-control" placeholder="Please enter password" data-error="#errorPassword">
+                                <input type="password" name="password" id="password" tabindex="2" class="form-control" placeholder="Please enter password" data-error="#errorPassword" <% if (data && data.userInfor) { %> value="<%=data.userInfor.password;%>" <% } %> />
                                 <small style="color: red;" id="errorPassword"></small>
                             </div>
                             <div class="form-group">
@@ -64,13 +64,13 @@
                 },
                 messages: {
                     email: {
-                        required: "Please email field not required!",
+                        required: "Email field required!",
                         email: "Please enter email!"
                     },
                     password: {
-                        required: "Please password field not required!",
-                        maxlength: "This password field less than 20 characters!",
-                        minlength: "This password field more than 4 characters!"
+                        required: "Password field required!",
+                        maxlength: "Password field less than 20 characters!",
+                        minlength: "Password field more than 4 characters!"
                     }
                 },
                 errorElement: "span",
