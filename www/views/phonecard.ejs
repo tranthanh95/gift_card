@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<%- include('layout/head', {title : data.title}); %>
+<body>
+   <%- include('layout/nav', {cart : data.session }), {sess: data.session}; %>
+    <div class="container">
+        <h1>Sell Gift</h1>
+        <hr/>
+        <div class="row">
+            <!-- left column-->
+            <!-- edit form column-->
+            <div class="col-md-9 personal-info col-md-offset-2">
+                <h3>Information Gift to sell.</h3>
+                <form id="sellform" role="form" class="form-horizontal" method="post" >
+                    <!--console err-->
+                    <div id="sellalert" style="<% if(!data || !data.error ) {%>display:none<%}%>" class="alert alert-danger">
+                            <span>Error :</span>
+                            <%if (data && data.error) {%>
+                                <span><%= data.error%></span>
+                                <%}%>
+                    </div>
+                    <!--Menu category data from server-->
+                    <div class="form-group"  >
+                        <label class="col-lg-3 control-label">Category :</label>
+                        <div class="col-lg-8">
+                            <div class="ui-select">
+                                <select id="category" name="category" class="form-control"  ) >
+                                        <% if (data && data.category){ %>
+                                            <% var category = data.category; %>
+                                                    <% for (let i = 0 ; i < category.length ; i++) {%>
+                                                            <%if (category[i].parent == null) { %>
+                                                                    <option value="<%=category[i]._id%>"><%=category[i].name%></option>
+                                                            <% }%>              
+                                                    <% }%>
+                                        <% }%>
+                               
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        </hr>
+    </div>
+</body>
+</html>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+
+<script type="text/javascript">
+	var data = <%- JSON.stringify(data.category); %>
+    console.log(data);
+
+    $( document ).ready(function() {
+	    $('#category').click(function (event) {
+	    	var id = $(this).val();
+	    	for (let i = 0; i< data.length; i++){
+	    		var obj = data[i];
+	    		// console.log(obj);
+	    		if (obj.parent == id){
+	    			console.log(obj);
+				    	var div = document.createElement('div');
+				    	div.innerHTML = 
+				    		'<div class="form-group"  >\
+				    		<label class="col-lg-3 control-label">Category :</label>\
+                        	<div class="col-lg-8">\
+                            	<div class="ui-select">\
+                               		<select id="category" name="category" class="form-control"  ) >\
+                                        \
+                                </select>\
+                            </div>\
+                        </div>';
+                        document.getElementById('sellform').appendChild(div);
+	    		}
+	    	}
+	    });
+	});
+	
+</script>
+
+

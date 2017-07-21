@@ -12,8 +12,6 @@
                         <% for (let product of products) { %>
                             <li class="list-group-item">
                                 <span class="badge"><%=product.qty %></span>
-                                <strong><%=product.item.category[0].name %></strong>
-                                <span class="label label-success">$<%=product.price %></span>
                                 <div class="btn-group">
                                     <button class="btn btn-primary btn-xs dropdown-toggle" type="button" data-toggle="dropdown">Action <span class="caret"></span></button>
                                     <ul class="dropdown-menu">

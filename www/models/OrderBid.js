@@ -20,6 +20,7 @@ const OrderBidSchema = new mongoose.Schema({
             ref: 'Transaction'
         }
     ],
+
     price: {
         type: Number,
         required: true
@@ -29,7 +30,8 @@ const OrderBidSchema = new mongoose.Schema({
         required: true
     },
     expiresDate: {
-        type: Date
+        type: Date,
+        required: true
     },
     created_at: {
         type: Date,

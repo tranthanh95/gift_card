@@ -18,7 +18,12 @@ const CategorySchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    type: String,
+    parent : {
+        type: String
+    },
+    type :{
+        type : String
+    },
     value: {
         type: Number
     },

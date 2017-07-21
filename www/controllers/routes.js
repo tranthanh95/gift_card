@@ -4,17 +4,20 @@ const router = express.Router();
 
 // Require model
 const Cart = require("../models/Cart.js");
+const User = require("../models/User.js");
 
 const UserService = require("../services/UserService.js");
-const CategoryService = require("../services/CategoryService.js");
+const CategoryService= require("../services/CategoryService.js");
 const GiftCardService = require("../services/GiftCardService.js");
-
+const OrderBidService = require("../services/OrderBidService.js");
+const OrderAskService = require("../services/OrderAskService.js");
 // Require helper.
 const helper = require("../helpers/helper.js");
 
 // Session cart.
 var cartManager;
-
+//Session user
+var sess;
 // GET Homepage.
 router
     .route("/")
@@ -78,20 +81,29 @@ router
     })
     .post((req, res) => {
         var userInfor = req.body;
+
         UserService.findUserByEmail(userInfor.email, (err, user) => {
             if (!err && user) {
                 console.log("Successfully");
                 var status = helper.compare_password(userInfor.password, user.password);
                 if (status) {
                     req.session.user = user;
+                    sess = req.session.user;
                     delete req.session.user.password; // Delete password in session.
                     delete req.session.user.salt; // Delete salt in session.
-                    console.log(req.session.user);
+
+                    var sessUser = new User(sess
+                                ? sess
+                                : {});
+                    console.log("userID",sessUser._id);
                     res.render("index", {
                         data: {
-                            title: "Homepage"
+                            title: "Homepage",
+                            session: sess
                         }
                     });
+                    
+
                 } else {
                     res.render("login", {
                         data: {
@@ -437,12 +449,271 @@ router
 router
     .route("/buy")
     .get((req, res) => {
-        res.render("buygift", {
-            data: false,
-            title: "Buy"
-        });
+        //save session user
+        var sessUser = new User(sess
+                        ? sess
+                        : {});
+        
+        //check login ok not
+        if (sess){  
+
+            req.session.sessUser = sessUser;
+            sess = req.session.sessUser;
+            CategoryService.listCategory((err,categorys) =>{    
+                if (!err && categorys){
+                    res.render("buygift", {
+                        data: {
+                            categorys:categorys,
+                            title: "Buy",
+                            session: sess,
+                            err: false
+                        }
+                    });
+                }
+                else {
+                        console.log(err);
+                } 
+            });
+        }
+        else{
+            res.render('login',{
+                data:{
+                    err: "Do not login",
+                    title: "Login"
+                }
+            });
+            console.log("do not login");
+        };       
     })
 
+    .post((req,res)=> {
+
+     // save infor,ation to orderAsk table   
+        var giftId;
+        var giftcard=req.body;
+        var CreateOrderAsk = {
+                            
+                user : sess,
+                giftcard: giftId,
+                priceask: giftcard.priceask
+                                                
+        };
+
+        OrderAskService.addItem(CreateOrderAsk, (err,data) =>{
+                            
+            if (!err && data){
+                giftId = data._id;
+                CreateOrderAsk = {
+                            
+                    user : sess,
+                    giftcard: giftId,
+                    priceask: giftcard.priceask
+                                                
+                    };
+                console.log('insert buy giftcard successfully');
+                console.log("giftId: " ,giftId);
+                res.render("index", {
+                            data: {
+                            title: "Done",
+                            err: false
+                            }                              
+                });
+            }
+            else{
+                        
+                console.log(err);
+            }
+        });
+    })  
+
+
+// Router sell gift card.       
+router
+    .route("/sell")
+    .get((req, res) => {
+        // save session user
+        var sessUser = new User(sess
+                        ? sess
+                        : {});
+        // check login or not
+        if (sess) {
+            req.session.sessUser = sessUser;
+            sess = req.session.sessUser;
+            console.log(sess._id);
+
+            CategoryService.listCategory((err,category) =>{    
+                if (!err && category){
+                    res.render("sellgift", {
+                            data: {
+                                category:category,
+                                title: "Sell",
+                                session: sess,
+                                err: false
+                            }
+                                                         
+                    });
+                }
+                else{
+                    console.log(err);
+                }
+            });
+        }
+        else{
+            res.render('login',{
+                data:{
+                    err: "Do not login",
+                    title: "Login"
+                }
+            });
+            console.log("do not login");
+        };       
+    })
+    .post((req,res)=> {
+
+        var giftId;                         // get giftid from giftcard table to save in orderbid table
+        var giftcard=req.body;
+
+
+        //check what radio button user select
+        // if "No" only save information to giftcard table
+        if (giftcard.optradio == 'No'){
+                    
+            var CreateGiftcard = {
+                            
+                series: giftcard.series,
+                code: giftcard.code,
+                image: giftcard.image,
+                descriptions: giftcard.descriptions
+                                
+            };
+
+                GiftCardService.addItem(CreateGiftcard, (err,data) =>{
+                            
+                    if (!err && data){
+                        let giftId = data;
+                        console.log('insert only giftcard successfully');
+                        console.log("giftId: " ,giftId._id);
+                        res.render('index',{
+                            data: {
+                                giftId: giftId,
+                                title: 'My homepage'
+                            }
+
+                        });
+                    }
+
+                    else{
+                        res.status(400).send();
+                        console.log(err);
+                    }
+                });
+        };        
+        
+
+        // if "Ok" save information to 2 table, giftcard and orderbid
+        if (giftcard.optradio == 'Ok'){
+            var CreateGiftcard = {
+                            
+                series: giftcard.series,
+                code: giftcard.code,
+                image: giftcard.image,
+                descriptions: giftcard.descriptions
+                                
+            };
+
+            GiftCardService.addItem(CreateGiftcard, (err,data) =>{
+                            
+                if (!err && data){
+                    giftId = data._id;
+                    console.log('insert giftcard successfully');
+                    console.log("giftId: " ,giftId);
+                    var orderbid = req.body;
+
+                    var CreateOrderBid = {
+                            user : sess,
+                            giftcard: giftId,
+                            price: orderbid.price,
+                            fromPrice_toPrice: orderbid.FromPrice_ToPrice,
+                            expiresDate: orderbid.ExpiresDate
+                    };
+
+                    OrderBidService.addItem(CreateOrderBid, (err,data) =>{
+
+                            if (!err && data) {
+                                console.log("insert in oderbit successfully !");
+                                console.log("-----------------");
+                                res.render("index", {
+                                    data: {
+                                        title: "Done",
+                                        err: false
+                                    }                              
+                                });
+                            }
+                            else{
+                                console.log(err);
+                            }
+                    });
+
+                }
+                else{
+                    res.status(400).send();
+                    console.log(err);
+                }
+                    console.log("giftId",giftId);
+            });
+
+        }    
+    }) 
+//Router phonecard
+router
+    .route("/sell/phonecard")
+    .get((req, res) => {
+        // save session user
+        // var sessUser = new User(sess
+        //                 ? sess
+        //                 : {});
+        // // check login or not
+        // if (sess) {
+            // req.session.sessUser = sessUser;
+            // sess = req.session.sessUser;
+            // console.log(sess._id);
+
+            CategoryService.listCategory((err,category) =>{    
+                if (!err && category){
+                    res.render("phonecard", {
+                            data: {
+                                category:category,
+                                title: "Sell",
+                                session: sess,
+                                err: false
+                            }                              
+                    });
+                }
+                else{
+                    console.log(err);
+                }
+            });
+        //}
+        // else{
+        //     res.render('login',{
+        //         data:{
+        //             err: "Do not login",
+        //             title: "Login"
+        //         }
+        //     });
+        //     console.log("do not login");
+        // };       
+    })
+    .post((req,res) =>{
+        var category = req.body;
+        console.log(category);
+        res.render("index", {
+            data : {
+                category : category,
+                title : "success"
+            }
+        });
+    })     
 // Router buy gift information.
 router
     .route("/gift-card")
@@ -453,15 +724,6 @@ router
         });
     })
 
-// Router sell gift card.
-router
-    .route("/sell")
-    .get((req, res) => {
-        res.render("sellgift", {
-            data: false,
-            title: "Sell"
-        });
-    })
 
 // Router logout.
 router

@@ -2,17 +2,22 @@
 <html>
 <%- include('layout/head', {title : data.title}); %>
 <body>
-    <%- include('layout/nav', {cart : data.session }); %>
+    <%- include('layout/nav', {cart : data.session} , {sess: data.session} ); %>
     <div class="container">
         <h1>Buy Gift</h1>
         <hr/>
         <div class="row">
             <!-- left column-->
             <!-- edit form column-->
-            <div class="col-md-9 personal-info col-md-offset-2">
-                <div class="alert alert-info alert-dismissable"><a data-dismiss="alert" class="panel-close close">×</a><i class="fa fa-coffee"></i> This is an <strong>.alert</strong>. Use this to show important messages to the user.</div>
+            <div class="col-md-9 personal-info col-md-offset-2" >
                 <h3>Information Gift</h3>
-                <form role="form" class="form-horizontal">
+                <form id="buyform" role="form" class="form-horizontal" method="post" action="/buy">
+                <div id="buyalert" style="<% if(!data || !data.error ) {%>display:none<%}%>" class="alert alert-danger">
+                            <span>Error :</span>
+                            <%if (data && data.error) {%>
+                                <span><%= data.error%></span>
+                                <%}%>
+                    </div>
                     <div class="form-group">
                         <label class="col-lg-3 control-label">Category :</label>
                         <div class="col-lg-8">
@@ -22,7 +27,7 @@
                                     <option value="CardVT10">Card Viettel 10k</option>
                                     <option value="CardVT20">Card Viettel 20k</option>
                                     <option value="CardVT50">Card Viettel 50k</option>
-                                    <option value="CardVT100">Card Viettel 100k</option>
+                                    <option value="CardVT50100">Card Viettel 100k</option>
                                     <option value="Clothes" selected="selected">Quan Ao</option>
                                     <option value="Movies">Ve xem phim</option>
                                 </select>
@@ -30,18 +35,19 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="col-md-3 control-label">FromPrice-ToPrice :</label>
+                        <label class="col-md-3 control-label">Price Ask :</label>
                         <div class="col-md-8">
                             <div class="input-group">
-                                <input type="number" value="1" class="form-control" /><span id="basic-addon1" class="input-group-addon"><i class="fa fa-dollar"></i></span>
+                                <input name="priceAsk" type="number" placeholder="Price that you want to buy" class="form-control" data-error="#errorpriceAsk" /><span id="basic-addon1" class="input-group-addon"><i class="fa fa-dollar"></i></span>
                             </div>
+                            <small style="color: red;" id="errorpriceAsk"></small>  
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="col-md-3 control-label"></label>
                         <div class="col-md-8">
-                            <input type="button" value="Save Changes" class="btn btn-primary" /><span>&nbsp</span>
-                            <input type="reset" value="Cancel" class="btn btn-default" />
+                            <input type="submit" value="Save Changes" class="btn btn-primary" /><span>&nbsp</span>
+                            <input type="button" value="Cancel" class="btn btn-default" onclick="location.href='/';" />
                         </div>
                     </div>
                 </form>
@@ -49,4 +55,31 @@
         </div>
     </div>
     <hr/>
-    <%- include ./layout/footer %>
+<script type="text/javascript " src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.16.0/jquery.validate.min.js "></script>
+ <script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js"></script>
+        <script type="text/javascript ">
+            $("#buyform").validate({
+                rules: {
+                            priceAsk: {
+                                    required: true
+                            
+                            }
+                },
+
+                messages :{
+                            priceAsk: {
+                                    required: "Please retype this field"
+                                
+                            }
+                },
+                errorElement: "span",
+                errorPlacement: function(error, element) {
+                    var placement = $(element).data("error");
+                    if (placement) {
+                        $(placement).append(error)
+                    } else {
+                        error.insertAfter(element);
+                    }
+                }
+            });
+        </script>                        
